@@ -46,7 +46,7 @@ jobs:
       - name: Bump version in library package.json
         run: |
           cd projects/borboleta
-          npm version "${{ inputs.version }}" --no-git-tag-version
+          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
 
       - run: npm run build
       - run: npx ng test --no-watch
@@ -59,7 +59,7 @@ jobs:
       - name: Commit version bump
         run: |
           git add projects/borboleta/package.json
-          git commit -m "chore: release v${{ inputs.version }}"
+          git diff --staged --quiet && echo "No version change to commit" || git commit -m "chore: release v${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
           git push origin main --tags
 
