@@ -2,11 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (e.g. 1.0.0)'
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -27,27 +22,21 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      - name: Validate version format
-        run: |
-          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
-            echo "::error::Invalid version format: ${{ inputs.version }}"
-            exit 1
-          fi
+      - name: Read version from library
+        id: version
+        run: echo "value=$(node -p "require('./projects/borboleta/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Check tag does not already exist
         run: |
-          if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
-            echo "::error::Tag v${{ inputs.version }} already exists"
+          if git rev-parse "v${{ steps.version.outputs.value }}" >/dev/null 2>&1; then
+            echo "::error::Tag v${{ steps.version.outputs.value }} already exists"
             exit 1
           fi
 
       - run: npm ci
 
-      - name: Bump version
-        run: |
-          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
-          cd projects/borboleta
-          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
+      - name: Sync root version
+        run: npm version "${{ steps.version.outputs.value }}" --no-git-tag-version --allow-same-version
 
       - run: npm run build
       - run: npx ng test --no-watch
@@ -57,24 +46,34 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit version bump
+      - name: Commit, tag and publish release
         run: |
+          git add package.json package-lock.json
+          git diff --staged --quiet || git commit -m "chore: release v${{ steps.version.outputs.value }}"
+          git tag "v${{ steps.version.outputs.value }}"
+
+      - name: Publish to npm
+        working-directory: dist/borboleta
+        run: npm publish --provenance --access public
+
+      - name: Bump to next patch version
+        run: |
+          cd projects/borboleta
+          npm version patch --no-git-tag-version
+          NEXT=$(node -p "require('./package.json').version")
+          cd ../..
+          npm version "$NEXT" --no-git-tag-version
           git add package.json package-lock.json projects/borboleta/package.json
-          git diff --staged --quiet && echo "No version change to commit" || git commit -m "chore: release v${{ inputs.version }}"
-          git tag "v${{ inputs.version }}"
-          git push origin main --tags
+          git commit -m "chore: bump to v$NEXT [skip ci]"
+
+      - name: Push
+        run: git push origin main --tags
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ inputs.version }}" \
-            --title "v${{ inputs.version }}" \
+          gh release create "v${{ steps.version.outputs.value }}" \
+            --title "v${{ steps.version.outputs.value }}" \
             --generate-notes \
             --latest
-
-      - name: Publish to npm
-        working-directory: dist/borboleta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public
