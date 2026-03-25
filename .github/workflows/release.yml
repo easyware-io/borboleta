@@ -12,14 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
 
       - name: Read version from library
         id: version
@@ -53,9 +54,7 @@ jobs:
 
       - name: Publish to npm
         working-directory: dist/borboleta
-        env:
-          NPM_CONFIG_PROVENANCE: true
-        run: npm publish --access public
+        run: npm publish
 
       - name: Bump to next patch version
         run: |
