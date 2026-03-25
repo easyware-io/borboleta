@@ -54,6 +54,8 @@ jobs:
 
       - name: Publish to npm
         working-directory: dist/borboleta
+        env:
+          NPM_CONFIG_PROVENANCE: true
         run: npm publish
 
       - name: Bump to next patch version
