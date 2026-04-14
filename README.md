@@ -11,7 +11,7 @@ Convert [JSON Schema](https://json-schema.org/) definitions into [Angular Signal
 ## Installation
 
 ```bash
-npm install borboleta
+npm install @easyware/borboleta
 ```
 
 Peer dependencies: `@angular/core`, `@angular/common`, `@angular/forms` (all `^21.2.0`).
@@ -21,7 +21,7 @@ Peer dependencies: `@angular/core`, `@angular/common`, `@angular/forms` (all `^2
 ```typescript
 import { signal } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { toSignalSchema } from 'borboleta';
+import { toSignalSchema } from '@easyware/borboleta';
 
 const jsonSchema = {
   type: 'object',
@@ -75,7 +75,7 @@ Use `composeSchemas()` to layer custom validators on top of the generated ones:
 
 ```typescript
 import { form, validate, required } from '@angular/forms/signals';
-import { toSignalSchema, composeSchemas } from 'borboleta';
+import { toSignalSchema, composeSchemas } from '@easyware/borboleta';
 
 const myForm = form(
   model,
