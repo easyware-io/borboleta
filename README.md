@@ -1,12 +1,12 @@
 # Borboleta 🦋
 
-Convert [JSON Schema](https://json-schema.org/) definitions into [Angular Signal Forms](https://angular.dev/guide/forms/signals/overview) schema functions.
+Convert JSON Schema definitions into Angular Signal Forms schema functions.
 
 > **Requires Angular 21+** — Signal Forms are experimental. See the [Angular docs](https://angular.dev/guide/forms/signals/validation#the-schema-function) for details.
 
 ## Why "Borboleta"?
 
-*Borboleta* is Portuguese for **butterfly** — a symbol of transformation. This library transforms JSON Schema definitions into Angular Signal Forms schemas, much like a caterpillar becomes a butterfly. 🦋
+*Borboleta* is Portuguese for **butterfly** — a symbol of transformation. This library transforms [JSON Schema](https://json-schema.org/) definitions into [Angular Signal Forms](https://angular.dev/guide/forms/signals/overview) schemas, much like a caterpillar becomes a butterfly. 🦋
 
 ## Installation
 
